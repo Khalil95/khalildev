@@ -780,6 +780,10 @@ body {
 }
 
 @media (max-width: 480px) {
+    .hero {
+        padding: 10rem 2rem 2rem;
+    }
+
     .nav-container {
         flex-direction: column;
         gap: 1rem;
