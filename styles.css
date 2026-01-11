@@ -671,6 +671,8 @@ body {
     border: 1px solid rgba(0, 120, 212, 0.2);
     text-align: center;
     transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
 }
 
 .info-card:hover {
