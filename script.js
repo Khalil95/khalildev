@@ -39,14 +39,31 @@ window.addEventListener('scroll', () => {
 // Contact form handling
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', function(e) {
+contactForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    // Get form data
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
+    
+    // Get user IP address
+    let ip = 'unknown';
+    try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        ip = ipData.ip;
+    } catch (error) {
+        console.log('Could not fetch IP address:', error);
+    }
+    
     const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        subject: document.getElementById('subject').value,
-        message: document.getElementById('message').value
+        name: name,
+        email: email,
+        subject: subject,
+        message: message,
+        ip: ip
     };
     
     // Animate button
@@ -55,27 +72,41 @@ contactForm.addEventListener('submit', function(e) {
     submitButton.innerHTML = '<span>Sending...</span>';
     submitButton.disabled = true;
     
-    // Simulate form submission (replace with actual backend call)
+    try {
+        // Send to Power Automate flow
+        const response = await fetch('https://default87fa5f6a72cf47b2a50341e159208c.d9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/63412b672d9c4164922a508e2c0c2920/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=X1Tg4Uc0s7yWFkwl_slJ8FoiOqMBCENAEfh2tM0lDoU', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            submitButton.innerHTML = '<span>Message Sent! ✓</span>';
+            submitButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            
+            // Reset form
+            contactForm.reset();
+            
+            // Show success message
+            showNotification('Thank you for your message! I\'ll get back to you soon.', 'success');
+        } else {
+            throw new Error('Failed to send message');
+        }
+    } catch (error) {
+        console.error('Error sending form:', error);
+        submitButton.innerHTML = '<span>Error sending message</span>';
+        submitButton.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        showNotification('Failed to send message. Please try again.', 'error');
+    }
+    
+    // Reset button after 3 seconds
     setTimeout(() => {
-        submitButton.innerHTML = '<span>Message Sent! ✓</span>';
-        submitButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-        
-        // Reset form
-        contactForm.reset();
-        
-        // Reset button after 3 seconds
-        setTimeout(() => {
-            submitButton.innerHTML = originalText;
-            submitButton.style.background = '';
-            submitButton.disabled = false;
-        }, 3000);
-        
-        // Log form data (for demonstration)
-        console.log('Form submitted:', formData);
-        
-        // Show success message
-        showNotification('Thank you for your message! I\'ll get back to you soon.', 'success');
-    }, 1500);
+        submitButton.innerHTML = originalText;
+        submitButton.style.background = '';
+        submitButton.disabled = false;
+    }, 3000);
 });
 
 // Notification system
