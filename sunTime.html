@@ -18,6 +18,7 @@
 					<span id="sunset-time" class="sunset-time">--:--</span>
 					<div id="sunset-date" class="sunset-meta">Waiting for location…</div>
 					<div id="sunset-location" class="sunset-meta"></div>
+					<div id="sunset-remaining" class="sunset-meta"></div>
 				</div>
 
 				<div class="sunset-actions">
@@ -34,11 +35,37 @@
 			const sunsetTimeEl = document.getElementById("sunset-time");
 			const sunsetDateEl = document.getElementById("sunset-date");
 			const sunsetLocationEl = document.getElementById("sunset-location");
+			const sunsetRemainingEl = document.getElementById("sunset-remaining");
 			const sunsetStatusEl = document.getElementById("sunset-status");
 			const refreshBtn = document.getElementById("refresh-btn");
 
+			let activeSunsetDate = null;
+			let remainingTimer = null;
+
 			function setStatus(message) {
 				sunsetStatusEl.textContent = message;
+			}
+
+			function updateRemainingTime() {
+				if (!activeSunsetDate) {
+					sunsetRemainingEl.textContent = "";
+					return;
+				}
+
+				const now = new Date();
+				const diffMs = activeSunsetDate.getTime() - now.getTime();
+
+				if (diffMs <= 0) {
+					sunsetRemainingEl.textContent = "Sunset has already passed for today.";
+					return;
+				}
+
+				const totalSeconds = Math.floor(diffMs / 1000);
+				const hours = Math.floor(totalSeconds / 3600);
+				const minutes = Math.floor((totalSeconds % 3600) / 60);
+				const seconds = totalSeconds % 60;
+
+				sunsetRemainingEl.textContent = `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
 			}
 
 			async function loadSunset(latitude, longitude) {
@@ -55,6 +82,7 @@
 				}
 
 				const sunsetDate = new Date(payload.results.sunset);
+				activeSunsetDate = sunsetDate;
 				const localTime = sunsetDate.toLocaleTimeString([], {
 					hour: "2-digit",
 					minute: "2-digit",
@@ -69,6 +97,12 @@
 				sunsetTimeEl.textContent = localTime;
 				sunsetDateEl.textContent = readableDate;
 				sunsetLocationEl.textContent = `Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}`;
+				updateRemainingTime();
+
+				if (remainingTimer) {
+					clearInterval(remainingTimer);
+				}
+				remainingTimer = setInterval(updateRemainingTime, 1000);
 				setStatus("Updated successfully.");
 			}
 
