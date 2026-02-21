@@ -1,147 +1,150 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Sunset Time by Location</title>
-		<link rel="stylesheet" href="style_suntime.css" />
-	</head>
-	<body>
-		<main class="sunset-page">
-			<section class="sunset-card">
-				<h1 class="sunset-title">Today’s Sunset</h1>
-				<p class="sunset-subtitle">
-					This page uses your current location to calculate sunset time.
-				</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sunset Time by Location</title>
+    <link rel="stylesheet" href="style_suntime.css" />
+  </head>
+  <body>
+    <main class="sunset-page">
+      <section class="sunset-card">
+        <h1 class="sunset-title">Today’s Sunset</h1>
+        <p class="sunset-subtitle">
+          This page uses your current location to calculate sunset time.
+        </p>
 
-				<div class="sunset-result">
-					<span id="sunset-time" class="sunset-time">--:--</span>
-					<div id="sunset-date" class="sunset-meta">Waiting for location…</div>
-					<div id="sunset-location" class="sunset-meta"></div>
-					<div id="sunset-remaining" class="sunset-meta"></div>
-				</div>
+        <div class="sunset-result">
+          <span id="sunset-time" class="sunset-time">--:--</span>
+          <div id="sunset-date" class="sunset-meta">Waiting for location…</div>
+          <div id="sunset-location" class="sunset-meta"></div>
+          <div id="sunset-remaining" class="sunset-meta"></div>
+        </div>
 
-				<div class="sunset-actions">
-					<button id="refresh-btn" class="sunset-btn" type="button">
-						Refresh Sunset
-					</button>
-				</div>
+        <div class="sunset-actions">
+          <button id="refresh-btn" class="sunset-btn" type="button">
+            Refresh Sunset
+          </button>
+        </div>
 
-				<p id="sunset-status" class="sunset-status"></p>
-			</section>
-		</main>
+        <p id="sunset-status" class="sunset-status"></p>
+      </section>
+    </main>
 
-		<script>
-			const sunsetTimeEl = document.getElementById("sunset-time");
-			const sunsetDateEl = document.getElementById("sunset-date");
-			const sunsetLocationEl = document.getElementById("sunset-location");
-			const sunsetRemainingEl = document.getElementById("sunset-remaining");
-			const sunsetStatusEl = document.getElementById("sunset-status");
-			const refreshBtn = document.getElementById("refresh-btn");
+    <script>
+      const sunsetTimeEl = document.getElementById("sunset-time");
+      const sunsetDateEl = document.getElementById("sunset-date");
+      const sunsetLocationEl = document.getElementById("sunset-location");
+      const sunsetRemainingEl = document.getElementById("sunset-remaining");
+      const sunsetStatusEl = document.getElementById("sunset-status");
+      const refreshBtn = document.getElementById("refresh-btn");
 
-			let activeSunsetDate = null;
-			let remainingTimer = null;
+      let activeSunsetDate = null;
+      let remainingTimer = null;
 
-			function setStatus(message) {
-				sunsetStatusEl.textContent = message;
-			}
+      function setStatus(message) {
+        sunsetStatusEl.textContent = message;
+      }
 
-			function updateRemainingTime() {
-				if (!activeSunsetDate) {
-					sunsetRemainingEl.textContent = "";
-					return;
-				}
+      function updateRemainingTime() {
+        if (!activeSunsetDate) {
+          sunsetRemainingEl.textContent = "";
+          return;
+        }
 
-				const now = new Date();
-				const diffMs = activeSunsetDate.getTime() - now.getTime();
+        const now = new Date();
+        const diffMs = activeSunsetDate.getTime() - now.getTime();
 
-				if (diffMs <= 0) {
-					sunsetRemainingEl.textContent = "Sunset has already passed for today.";
-					return;
-				}
+        if (diffMs <= 0) {
+          sunsetRemainingEl.textContent =
+            "Sunset has already passed for today.";
+          return;
+        }
 
-				const totalSeconds = Math.floor(diffMs / 1000);
-				const hours = Math.floor(totalSeconds / 3600);
-				const minutes = Math.floor((totalSeconds % 3600) / 60);
-				const seconds = totalSeconds % 60;
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
 
-				sunsetRemainingEl.textContent = `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
-			}
+        sunsetRemainingEl.textContent = `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
+      }
 
-			async function loadSunset(latitude, longitude) {
-				const endpoint = `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=today&formatted=0`;
-				const response = await fetch(endpoint);
+      async function loadSunset(latitude, longitude) {
+        const endpoint = `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=today&formatted=0`;
+        const response = await fetch(endpoint);
 
-				if (!response.ok) {
-					throw new Error("Failed to fetch sunset data.");
-				}
+        if (!response.ok) {
+          throw new Error("Failed to fetch sunset data.");
+        }
 
-				const payload = await response.json();
-				if (payload.status !== "OK") {
-					throw new Error("Sunset API returned an invalid response.");
-				}
+        const payload = await response.json();
+        if (payload.status !== "OK") {
+          throw new Error("Sunset API returned an invalid response.");
+        }
 
-				const sunsetDate = new Date(payload.results.sunset);
-				activeSunsetDate = sunsetDate;
-				const localTime = sunsetDate.toLocaleTimeString([], {
-					hour: "2-digit",
-					minute: "2-digit",
-				});
-				const readableDate = sunsetDate.toLocaleDateString([], {
-					weekday: "long",
-					year: "numeric",
-					month: "long",
-					day: "numeric",
-				});
+        const sunsetDate = new Date(payload.results.sunset);
+        activeSunsetDate = sunsetDate;
+        const localTime = sunsetDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const readableDate = sunsetDate.toLocaleDateString([], {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
 
-				sunsetTimeEl.textContent = localTime;
-				sunsetDateEl.textContent = readableDate;
-				sunsetLocationEl.textContent = `Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}`;
-				updateRemainingTime();
+        sunsetTimeEl.textContent = localTime;
+        sunsetDateEl.textContent = readableDate;
+        sunsetLocationEl.textContent = `Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}`;
+        updateRemainingTime();
 
-				if (remainingTimer) {
-					clearInterval(remainingTimer);
-				}
-				remainingTimer = setInterval(updateRemainingTime, 1000);
-				setStatus("Updated successfully.");
-			}
+        if (remainingTimer) {
+          clearInterval(remainingTimer);
+        }
+        remainingTimer = setInterval(updateRemainingTime, 1000);
+        setStatus("Updated successfully.");
+      }
 
-			function fetchSunsetForCurrentLocation() {
-				if (!navigator.geolocation) {
-					setStatus("Geolocation is not supported by your browser.");
-					sunsetDateEl.textContent = "Cannot detect location.";
-					return;
-				}
+      function fetchSunsetForCurrentLocation() {
+        if (!navigator.geolocation) {
+          setStatus("Geolocation is not supported by your browser.");
+          sunsetDateEl.textContent = "Cannot detect location.";
+          return;
+        }
 
-				setStatus("Detecting your location...");
-				navigator.geolocation.getCurrentPosition(
-					async (position) => {
-						try {
-							setStatus("Calculating today’s sunset...");
-							await loadSunset(position.coords.latitude, position.coords.longitude);
-						} catch (error) {
-							setStatus(error.message || "Unable to calculate sunset.");
-						}
-					},
-					(error) => {
-						const message =
-							error.code === error.PERMISSION_DENIED
-								? "Location permission was denied. Please allow location access and refresh."
-								: "Could not get your location. Please try again.";
-						setStatus(message);
-						sunsetDateEl.textContent = "Location unavailable.";
-					},
-					{
-						enableHighAccuracy: true,
-						timeout: 10000,
-						maximumAge: 300000,
-					}
-				);
-			}
+        setStatus("Detecting your location...");
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            try {
+              setStatus("Calculating today’s sunset...");
+              await loadSunset(
+                position.coords.latitude,
+                position.coords.longitude,
+              );
+            } catch (error) {
+              setStatus(error.message || "Unable to calculate sunset.");
+            }
+          },
+          (error) => {
+            const message =
+              error.code === error.PERMISSION_DENIED
+                ? "Location permission was denied. Please allow location access and refresh."
+                : "Could not get your location. Please try again.";
+            setStatus(message);
+            sunsetDateEl.textContent = "Location unavailable.";
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000,
+          },
+        );
+      }
 
-			refreshBtn.addEventListener("click", fetchSunsetForCurrentLocation);
-			fetchSunsetForCurrentLocation();
-		</script>
-	</body>
+      refreshBtn.addEventListener("click", fetchSunsetForCurrentLocation);
+      fetchSunsetForCurrentLocation();
+    </script>
+  </body>
 </html>
-
