@@ -77,7 +77,8 @@ body {
 	font-size: 0.95rem;
 }
 
-#sunset-remaining {
+#sunset-remaining,
+#twilight-remaining {
 	margin-top: 0.75rem;
 }
 

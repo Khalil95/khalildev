@@ -19,14 +19,15 @@
             <div class="sunset-meta">Today’s Sunset</div>
             <span id="sunset-time" class="sunset-time">--:--</span>
             <div id="sunset-date" class="sunset-meta">Waiting for location…</div>
+            <div id="sunset-remaining" class="sunset-meta"></div>
           </div>
           <div class="sunset-result">
             <div class="sunset-meta">Today’s Twilight</div>
             <span id="twilight-time" class="sunset-time">--:--</span>
             <div class="sunset-meta">Astronomical twilight begin</div>
+            <div id="twilight-remaining" class="sunset-meta"></div>
           </div>
         </div>
-        <div id="sunset-remaining" class="sunset-meta"></div>
 
         <div class="sunset-actions">
           <button id="refresh-btn" class="sunset-btn" type="button">
@@ -43,29 +44,21 @@
       const twilightTimeEl = document.getElementById("twilight-time");
       const sunsetDateEl = document.getElementById("sunset-date");
       const sunsetRemainingEl = document.getElementById("sunset-remaining");
+      const twilightRemainingEl = document.getElementById("twilight-remaining");
       const sunsetStatusEl = document.getElementById("sunset-status");
       const refreshBtn = document.getElementById("refresh-btn");
 
       let activeSunsetDate = null;
+      let activeTwilightDate = null;
       let remainingTimer = null;
 
       function setStatus(message) {
         sunsetStatusEl.textContent = message;
       }
 
-      function updateRemainingTime() {
-        if (!activeSunsetDate) {
-          sunsetRemainingEl.textContent = "";
-          return;
-        }
-
-        const now = new Date();
-        const diffMs = activeSunsetDate.getTime() - now.getTime();
-
+      function formatRemaining(diffMs) {
         if (diffMs <= 0) {
-          sunsetRemainingEl.textContent =
-            "Sunset has already passed for today.";
-          return;
+          return null;
         }
 
         const totalSeconds = Math.floor(diffMs / 1000);
@@ -73,7 +66,29 @@
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
 
-        sunsetRemainingEl.textContent = `Time remaining: ${hours}h ${minutes}m ${seconds}s`;
+        return `${hours}h ${minutes}m ${seconds}s`;
+      }
+
+      function updateRemainingTime() {
+        const now = new Date();
+
+        if (activeSunsetDate) {
+          const sunsetRemaining = formatRemaining(activeSunsetDate.getTime() - now.getTime());
+          sunsetRemainingEl.textContent = sunsetRemaining
+            ? `Sunset remaining: ${sunsetRemaining}`
+            : "Sunset has already passed for today.";
+        } else {
+          sunsetRemainingEl.textContent = "";
+        }
+
+        if (activeTwilightDate) {
+          const twilightRemaining = formatRemaining(activeTwilightDate.getTime() - now.getTime());
+          twilightRemainingEl.textContent = twilightRemaining
+            ? `Twilight remaining: ${twilightRemaining}`
+            : "Twilight has already passed for today.";
+        } else {
+          twilightRemainingEl.textContent = "";
+        }
       }
 
       async function loadSunset(latitude, longitude) {
@@ -102,6 +117,7 @@
           day: "numeric",
         });
         const twilightDate = new Date(payload.results.astronomical_twilight_begin);
+        activeTwilightDate = twilightDate;
         const twilightTime = twilightDate.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
