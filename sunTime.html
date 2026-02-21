@@ -14,11 +14,17 @@
           This page uses your current location to calculate sunset time.
         </p>
 
-        <div class="sunset-result">
-          <span id="sunset-time" class="sunset-time">--:--</span>
-          <div id="sunset-date" class="sunset-meta">Waiting for location…</div>
-          <div id="sunset-remaining" class="sunset-meta"></div>
+        <div class="sunset-result-grid">
+          <div class="sunset-result">
+            <span id="sunset-time" class="sunset-time">--:--</span>
+            <div id="sunset-date" class="sunset-meta">Waiting for location…</div>
+          </div>
+          <div class="sunset-result">
+            <span id="civil-twilight-begin" class="sunset-time">--:--</span>
+            <div class="sunset-meta">Civil twilight begins</div>
+          </div>
         </div>
+        <div id="sunset-remaining" class="sunset-meta"></div>
 
         <div class="sunset-actions">
           <button id="refresh-btn" class="sunset-btn" type="button">
@@ -33,6 +39,7 @@
     <script>
       const sunsetTimeEl = document.getElementById("sunset-time");
       const sunsetDateEl = document.getElementById("sunset-date");
+      const civilTwilightBeginEl = document.getElementById("civil-twilight-begin");
       const sunsetRemainingEl = document.getElementById("sunset-remaining");
       const sunsetStatusEl = document.getElementById("sunset-status");
       const refreshBtn = document.getElementById("refresh-btn");
@@ -92,9 +99,15 @@
           month: "long",
           day: "numeric",
         });
+        const civilTwilightBeginDate = new Date(payload.results.civil_twilight_begin);
+        const civilTwilightBeginTime = civilTwilightBeginDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
 
         sunsetTimeEl.textContent = localTime;
         sunsetDateEl.textContent = readableDate;
+        civilTwilightBeginEl.textContent = civilTwilightBeginTime;
         updateRemainingTime();
 
         if (remainingTimer) {
