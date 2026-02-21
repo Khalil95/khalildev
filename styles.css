@@ -338,6 +338,12 @@ body {
     margin-top: 1.5rem;
 }
 
+.certification-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
 .certification-card {
     display: flex;
     align-items: center;
