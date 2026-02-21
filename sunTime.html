@@ -17,7 +17,6 @@
         <div class="sunset-result">
           <span id="sunset-time" class="sunset-time">--:--</span>
           <div id="sunset-date" class="sunset-meta">Waiting for location…</div>
-          <div id="sunset-location" class="sunset-meta"></div>
           <div id="sunset-remaining" class="sunset-meta"></div>
         </div>
 
@@ -34,7 +33,6 @@
     <script>
       const sunsetTimeEl = document.getElementById("sunset-time");
       const sunsetDateEl = document.getElementById("sunset-date");
-      const sunsetLocationEl = document.getElementById("sunset-location");
       const sunsetRemainingEl = document.getElementById("sunset-remaining");
       const sunsetStatusEl = document.getElementById("sunset-status");
       const refreshBtn = document.getElementById("refresh-btn");
@@ -97,7 +95,6 @@
 
         sunsetTimeEl.textContent = localTime;
         sunsetDateEl.textContent = readableDate;
-        sunsetLocationEl.textContent = `Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}`;
         updateRemainingTime();
 
         if (remainingTimer) {
