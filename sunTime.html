@@ -14,9 +14,17 @@
           This page uses your current location to calculate sunset time.
         </p>
 
-        <div class="sunset-result">
-          <span id="sunset-time" class="sunset-time">--:--</span>
-          <div id="sunset-date" class="sunset-meta">Waiting for location…</div>
+        <div class="sunset-result-grid">
+          <div class="sunset-result">
+            <div class="sunset-meta">Today’s Sunset</div>
+            <span id="sunset-time" class="sunset-time">--:--</span>
+            <div id="sunset-date" class="sunset-meta">Waiting for location…</div>
+          </div>
+          <div class="sunset-result">
+            <div class="sunset-meta">Today’s Twilight</div>
+            <span id="twilight-time" class="sunset-time">--:--</span>
+            <div class="sunset-meta">Astronomical twilight begin</div>
+          </div>
         </div>
         <div id="sunset-remaining" class="sunset-meta"></div>
 
@@ -32,6 +40,7 @@
 
     <script>
       const sunsetTimeEl = document.getElementById("sunset-time");
+      const twilightTimeEl = document.getElementById("twilight-time");
       const sunsetDateEl = document.getElementById("sunset-date");
       const sunsetRemainingEl = document.getElementById("sunset-remaining");
       const sunsetStatusEl = document.getElementById("sunset-status");
@@ -92,8 +101,14 @@
           month: "long",
           day: "numeric",
         });
+        const twilightDate = new Date(payload.results.astronomical_twilight_begin);
+        const twilightTime = twilightDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
 
         sunsetTimeEl.textContent = localTime;
+        twilightTimeEl.textContent = twilightTime;
         sunsetDateEl.textContent = readableDate;
         updateRemainingTime();
 

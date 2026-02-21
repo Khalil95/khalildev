@@ -58,6 +58,12 @@ body {
 	background: rgba(0, 120, 212, 0.08);
 }
 
+.sunset-result-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+
 .sunset-time {
 	display: block;
 	font-size: 2rem;
@@ -95,4 +101,48 @@ body {
 	margin-top: 1rem;
 	font-size: 0.95rem;
 	color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+	.sunset-page {
+		padding: 1rem;
+	}
+
+	.sunset-card {
+		padding: 1.1rem;
+	}
+
+	.sunset-title {
+		font-size: 1.4rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.sunset-subtitle {
+		margin-bottom: 1rem;
+	}
+
+	.sunset-result-grid {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	.sunset-result {
+		padding: 1rem;
+	}
+
+	.sunset-time {
+		font-size: 1.8rem;
+	}
+
+	#sunset-remaining {
+		margin-top: 1rem;
+	}
+
+	.sunset-actions {
+		margin-top: 1rem;
+	}
+
+	.sunset-btn {
+		width: 100%;
+	}
 }
